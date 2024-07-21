@@ -10,3 +10,6 @@ wanna become a glowie but don't know where to start? with the power of this thin
 4. use browser to browse(:exploding_head:) 
 
 
+# why in cpp 
+its like fast and shit 
+also i wanted to make a cpp project in linux cuz i never did it b4 
