@@ -26,9 +26,7 @@ int main(int argc, char** argv){
                     std::cout << temp << "\n";
                 continue;
             }
-            // if(temp.find("0.020000") != std::string::npos){
-            //     continue;
-            // }
+            
             std::cout << temp << "\n";
         }
 
