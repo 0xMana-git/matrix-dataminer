@@ -2,7 +2,7 @@
 #include "typedefs.h"
 #include <string>
 #include <vector>
-
+#include "config.h"
 
 
 
@@ -18,6 +18,9 @@ struct MessageEntry {
     size_t message_idx = 0;
     bool operator<(const MessageEntry& other){
         return timestamp < other.timestamp;
+    }
+    std::string ToString(){
+        return "msg_id: " + msg_id + " timestamp: " + std::to_string(timestamp) + " sender: " + sender + " is_reply: " + std::to_string(is_reply) + (is_reply ? " replying to: " + replying_to : "");
     }
 };
 
@@ -53,6 +56,9 @@ struct UserEntry {
     inline std::string GetRelations() const{
         std::string out;
         for(auto& it : relations_map){
+            if(it.second < Config::relation_signficance_threshold)
+                continue;
+            
             out += it.first + " ";
             out += std::to_string(it.second) + "\n";
         }

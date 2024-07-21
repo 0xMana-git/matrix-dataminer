@@ -29,12 +29,11 @@ void BuildRelations(UserEntry& user, const std::vector<MessageEntry>& messages) 
 
             ts_t delta_time = entry.timestamp - latest.timestamp;
             int message_between = entry.message_idx - latest.message_idx;
+            
             relation_weight_t weight = 0;
             if(entry.is_reply){
-                if(entry.replying_to == latest.sender){
+                if(entry.replying_to == latest.sender)
                     weight = Config::GetWeight(delta_time, message_between, true);
-                }
-                
             }
             weight = Config::GetWeight(delta_time, message_between, false);
             user.AddWeight(latest.sender, weight);
@@ -75,11 +74,16 @@ int main(){
         entry.message_idx = i;
         
         std::cin >> entry.msg_id >> entry.timestamp >> entry.sender >> entry.is_reply;
+
+        //if somehow already eof
+        if(entry.msg_id == "")
+            break;
+
         if( entry.is_reply ){
             std::cin >> entry.replying_to;
         }
             
-            
+        //std::cout << entry.ToString() << "\n";
         messages.push_back(entry);
 
     }

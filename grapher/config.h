@@ -37,4 +37,7 @@ namespace Config {
         
     }
 
+    //Actually used elsewhere
+    constexpr relation_weight_t relation_signficance_threshold = 1;
+
 }
