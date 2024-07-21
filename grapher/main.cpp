@@ -71,7 +71,6 @@ int main(){
     //messages.reserve(n_lines);
     for(int i = 0; !std::cin.eof(); i++) {
         MessageEntry entry;
-        entry.message_idx = i;
         
         std::cin >> entry.msg_id >> entry.timestamp >> entry.sender >> entry.is_reply;
 
@@ -88,6 +87,9 @@ int main(){
 
     }
     std::sort(messages.begin(), messages.end());
+    for(int i = 0; i < messages.size(); i++){
+        messages[i].message_idx = i;
+    }
     for(const MessageEntry& entry : messages){
         users.insert(UserEntry(entry.sender));
         if(entry.is_reply){

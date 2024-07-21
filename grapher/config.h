@@ -22,7 +22,7 @@ namespace Config {
         if(delta_time < delta_max){
             //In seconds this time :)
             double delta_time_d = double(delta_time) / 1000;
-            //20 @ 5 seconds
+        
             weight += (1 / delta_time_d) * reply_multiplier;
         }
         //messages_inbetween += 1;
