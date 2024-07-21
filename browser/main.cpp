@@ -27,6 +27,7 @@ int main(int argc, char** argv){
         }
 
         if(temp.find("Relations of: " + username) != std::string::npos){
+            std::cout << temp << "\n";
             found_flag = true;
         }
 
