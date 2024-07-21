@@ -9,7 +9,7 @@ int main(int argc, char** argv){
     std::string temp, file;
     bool found_flag = false;
     while(std::getline(std::cin, temp)){ 
-        if(temp.length() == 1 && found_flag)
+        if(temp.find("@") == std::string::npos && found_flag)
             return 0;
         if(found_flag){
             
@@ -20,6 +20,9 @@ int main(int argc, char** argv){
                 }
                 continue;
             }
+            // if(temp.find("0.020000") != std::string::npos){
+            //     continue;
+            // }
             std::cout << temp << "\n";
         }
 
