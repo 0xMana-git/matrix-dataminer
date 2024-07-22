@@ -9,6 +9,7 @@
 struct MessageEntry {
     msg_id_t msg_id = "";
     ts_t timestamp = 0;
+    room_id_t room_id = "";
     user_id_t sender = "";
     bool is_reply = 0;
     user_id_t replying_to = "";
@@ -20,7 +21,7 @@ struct MessageEntry {
         return timestamp < other.timestamp;
     }
     std::string ToString(){
-        return "msg_id: " + msg_id + " timestamp: " + std::to_string(timestamp) + " sender: " + sender + " is_reply: " + std::to_string(is_reply) + (is_reply ? " replying to: " + replying_to : "");
+        return "msg_id: " + msg_id + " room id: " + room_id + " timestamp: " + std::to_string(timestamp) + " sender: " + sender + " is_reply: " + std::to_string(is_reply) + (is_reply ? " replying to: " + replying_to : "");
     }
 };
 
@@ -35,42 +36,21 @@ struct UserEntry {
 
     //relation TO, not necessarily bidirectional(like if someone simps for another person and they never respond)
     relations_map_t relations_map;
+    inline static std::unordered_map<user_id_t, UserEntry> user_entries;
     //add weight of self to user 
-    inline void AddWeight(const user_id_t& user, relation_weight_t weight){
-        if(relations_map.find(user) == relations_map.end()){
-            relations_map[user] = weight;
-            return;
-        }
-        relations_map[user] += weight;
-    }
-    size_t hash() const {
-        return std::hash<std::string>()(user_id);
-    }
+    void AddWeight(const user_id_t& user, relation_weight_t weight);
     bool operator==(const UserEntry& other) const{
         return other.user_id == user_id;
     }
+
     UserEntry(user_id_t uid) {
         user_id = uid;
         relations_map = {};
     }
-    inline std::string GetRelations() const{
-        std::string out;
-        for(auto& it : relations_map){
-            if(it.second < Config::relation_signficance_threshold)
-                continue;
-            
-            out += it.first + " ";
-            out += std::to_string(it.second) + "\n";
-        }
-        return out;
-    }
+    
+    void BuildRelations(const std::vector<MessageEntry>& messages);
+    std::string GetRelations() const;
+    static void CreateUserIfNotExist(user_id_t uid);
+    
 };
 
-template<>
-struct std::hash<UserEntry>
-{
-    std::size_t operator()(UserEntry const& e) const 
-    {
-       return e.hash();
-    }
-};

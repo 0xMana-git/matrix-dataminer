@@ -3,8 +3,8 @@
 #include <mutex>
 #include <iostream>
 #include <thread>
-
-
+#include <unordered_map>
+#include "valmapper.h"
 
 //https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 // for string delimiter
@@ -51,12 +51,15 @@ std::vector<std::string> split(std::string s, std::string delimiter) {
 #define origin_server_ts 10
 #define sender 12
 #define type 3
+#define room_id 4
 
 
 void emptyproc(){};
 using proc_t = decltype(emptyproc);
-
+using lookup_pair_t = std::pair<std::string, int>;
 std::mutex stdin_mtx, stdout_mtx;
+
+ValMapper<std::string> room_id_map;
 std::string StdinReadLine() {
     std::string str;
 
@@ -85,7 +88,7 @@ void WorkerProc() {
         std::vector<std::string> substrs = split(in, "|");
         if(substrs[type] != "m.room.message")
             continue;
-        out = substrs[event_id] + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0";
+        out = substrs[event_id] + " " + room_id_map.GetEntry(substrs[room_id]) + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0";
         StdoutWriteLine(out);
 
     }
