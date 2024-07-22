@@ -53,6 +53,10 @@ std::vector<std::string> split(std::string s, std::string delimiter) {
 #define type 3
 #define room_id 4
 
+#define lines_per_chunk 128
+
+#define threads_n 32
+
 
 void emptyproc(){};
 using proc_t = decltype(emptyproc);
@@ -60,36 +64,48 @@ using lookup_pair_t = std::pair<std::string, int>;
 std::mutex stdin_mtx, stdout_mtx;
 
 ValMapper<std::string> room_id_map;
-std::string StdinReadLine() {
-    std::string str;
+using string_vec_t = std::vector<std::string>;
+string_vec_t StdinReadLines(int n_lines = lines_per_chunk) {
+    string_vec_t lines(n_lines);
 
     stdin_mtx.lock();
-    std::cin >> str;
+    for(int i = 0; i < n_lines; i++)
+        std::cin >> lines[i];
     stdin_mtx.unlock();
 
-    return str;
+    return lines;
 }
 
 
-void StdoutWriteLine(std::string& str){
-    str += "\n";
+void StdoutWriteLines(string_vec_t& lines){
+    for(std::string& line : lines){
+        line += "\n";
+    }
 
     stdout_mtx.lock();
-    std::cout << str;
+    for(std::string& line : lines){
+        std::cout << line;
+    }
     stdout_mtx.unlock();
 
 }
 
 void WorkerProc() {
     //Dont know if this is thread-safe, sure as shit hope it is
-    std::string in, out;
+    string_vec_t in, out;
     while(!std::cin.eof()){
-        in = StdinReadLine();
-        std::vector<std::string> substrs = split(in, "|");
+        in = StdinReadLines();
+        out.clear();
+        for(std::string& line : in){
+            if(line.size() < 2)
+                continue;
+            std::vector<std::string> substrs = split(line, "|");
         if(substrs[type] != "m.room.message")
             continue;
-        out = substrs[event_id] + " " + room_id_map.GetEntry(substrs[room_id]) + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0";
-        StdoutWriteLine(out);
+        out.push_back(substrs[event_id] + " " + room_id_map.GetEntry(substrs[room_id]) + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0");
+        }
+        
+        StdoutWriteLines(out);
 
     }
     
@@ -115,6 +131,6 @@ void RunProcsMultithreaded(int n_threads, proc_t proc){
 
 
 int main(){
-    RunProcsMultithreaded(1, WorkerProc);
+    RunProcsMultithreaded(threads_n, WorkerProc);
 }
     
