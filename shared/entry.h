@@ -29,10 +29,10 @@ public:
     bool is_reply = 0;
     user_id_t replying_to = "";
     
-    inline bool operator<(const MessageEntryBase& other){
+    inline bool operator<(const MessageEntryBase& other) const{
         return timestamp < other.timestamp;
     }
-    inline std::string ToString(){
+    inline std::string ToString() const {
         return "msg_id: " + msg_id + " room id: " + room_id + " timestamp: " + std::to_string(timestamp) + " sender: " + sender + " is_reply: " + std::to_string(is_reply) + (is_reply ? " replying to: " + replying_to : "");
         
     }

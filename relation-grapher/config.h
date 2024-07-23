@@ -14,14 +14,14 @@ namespace Config {
     constexpr relation_weight_t inbetween_weight_multiplier = 1;
     constexpr int inbetween_max_msgs = 10;
     
-    inline static relation_weight_t GetWeight(ts_t delta_time, int messages_inbetween, bool is_replying, double activity = 0.00) {
+    inline relation_weight_t GetWeight(ts_t delta_time, int messages_inbetween, bool is_replying, double activity = 0.00) {
         relation_weight_t weight = 0;
         if (is_replying)
             weight += reply_flat_addition;
         delta_time = std::min(delta_min, delta_time);
         if(delta_time < delta_max){
             //In seconds this time :)
-            double delta_time_d = double(delta_time) / 1000;
+            double delta_time_d = (double)delta_time / 1000;
         
             weight += (1 / delta_time_d) * reply_multiplier;
         }

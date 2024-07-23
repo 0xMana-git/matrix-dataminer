@@ -80,8 +80,8 @@ int main(){
         }
         //std::cout << "Finished parsing input data. Got total of " << messages.size() << " Messages and " << UserEntry::user_entries.size() << " User entries Processing...\n";
         std::vector<args_pair> args_v;
-        for(auto& it : UserEntry::user_entries){
-            args_v.push_back(args_pair((&it.second), msgs)); 
+        for(auto& it2 : UserEntry::user_entries){
+            args_v.push_back(args_pair((&it2.second), msgs)); 
         }
         RunProcsMultithreaded(threads_n, args_v);
     }
