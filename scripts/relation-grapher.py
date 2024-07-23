@@ -2,6 +2,7 @@ import argparse
 import matplotlib.pyplot as plt
 import networkx as nx
 import subprocess
+import numpy as np
 
 parser = argparse.ArgumentParser(
                     prog='ProgramName',
@@ -55,13 +56,26 @@ def explore(data_fname : str, node : str, width : int, max_depth : int, edges : 
         explore(data_fname, k, width, max_depth, edges, depth + 1)
     return edges
         
+def lerp(minv, maxv, perc):
+    delta = maxv - minv
+    return minv + delta * perc
+def color_from_weight(minw, maxw, w, cs, ce):
+    cs = np.array(cs)
+    ce = np.array(ce)
+    delta = ce - cs
+    percent = (w - minw) / (maxw - minw) 
+    return cs + delta * percent
 
+def interpolate(smin, smax, v, dmin, dmax):
+    sdelta = smax - smin
+    perc = (v - smin) / sdelta
+    return lerp(dmin, dmax, perc)
 
 def main():
     
 
     args = parser.parse_args()
-    edges = explore("./out.txt", "@mana:schizo.vip", 10, 5)
+    edges = explore("./outpub.txt", "@mana:schizo.vip", 10, 10)
     G = nx.Graph()
 
     processed = set()
@@ -78,13 +92,31 @@ def main():
                 v2 = edges[k2][k1]
             #g.add_node(k1)
             #g.add_node(k2)
-            avg = (v1 + v2) * 0.5 * 0.001
+            avg = (v1 + v2) * 0.5 * 0.003
             G.add_edge(k1, k2, color="r", weight=avg)
 
         processed.add(k1)
-
-    colors = nx.get_edge_attributes(G,'color').values()
     weights = nx.get_edge_attributes(G,'weight').values()
+    minw = min(weights)
+    maxw = max(weights)
+    nodes_weights = {}
+    nodes_w_list = []
+    for u,v,a in G.edges(data=True):
+        if u in nodes_weights.keys():
+            nodes_weights[u] = 0.0
+        if v in nodes_weights.keys():
+            nodes_weights[v] = 0.0
+        
+        weight = a["weight"]
+        nodes_weights[u] = nodes_weights[v] = weight
+        a['color'] = color_from_weight(minw, maxw, weight, [1, 0, 0, 1], [0, 1, 0, 1])
+    for n in G.nodes():
+        nodes_w_list.append(interpolate(min(nodes_weights.values()), max(nodes_weights.values()), 
+                                        nodes_weights[n],
+                                        25,
+                                        1000))
+    colors = nx.get_edge_attributes(G,'color').values()
+    
 
     pos = nx.random_layout(G)
     fig=plt.figure()
@@ -93,7 +125,7 @@ def main():
             width=list(weights),
             with_labels=True,
             node_color='blue',
-            node_size=100,
+            node_size=nodes_w_list,
             font_size=7,
             font_color="white")
     fig.set_facecolor("#00000F")
