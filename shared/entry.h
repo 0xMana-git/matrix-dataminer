@@ -45,9 +45,11 @@ public:
             if(substrs[EventsDBEnum::type] != "m.room.encrypted")
                 return {};
         }
-            
-
-        std::string room_id_str;
+        
+        std::string room_id_str = substrs[EventsDBEnum::room_id];
+        if(remap_room_ids)
+            room_id_str = mapper.GetEntry(room_id_str);
+        
 
         return MessageEntryBase(substrs[EventsDBEnum::event_id], 
                             stoll(substrs[EventsDBEnum::origin_server_ts]), 
