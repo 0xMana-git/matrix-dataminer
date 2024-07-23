@@ -5,6 +5,7 @@
 #include <thread>
 #include <unordered_map>
 #include "valmapper.h"
+#include "../shared/thread_safe_queue.h"
 
 //https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 // for string delimiter
@@ -64,65 +65,41 @@ void emptyproc(){};
 using proc_t = decltype(emptyproc);
 using lookup_pair_t = std::pair<std::string, int>;
 std::mutex vec_mtx;
-std::vector<std::string> lines_vector;
+ThreadSafeQueue<const std::string&> tasks, results;
 
 ValMapper<std::string> room_id_map;
 using string_vec_t = std::vector<std::string>;
-std::string StdinReadLine() {
-    string_vec_t lines(n_lines);
 
-    stdin_mtx.lock();
-    for(int i = 0; i < n_lines; i++)
-        std::cin >> lines[i];
-    stdin_mtx.unlock();
+std::optional<std::string> TransformString(const std::string& str){
+    std::vector<std::string> substrs = split(str, "|");
+    if(substrs[type] != "m.room.message")
+        if(!allow_encrypted)
+            return {};
+        if(substrs[type] != "m.room.encrypted")
+            return {};
 
-    return lines;
+    std::string room_id_str;
+    if(remap_room_name){
+        room_id_str = room_id_map.GetEntry(substrs[room_id]);
+    }
+    else {
+        room_id_str = substrs[room_id];
+    };
+    return substrs[event_id] + " " + room_id_str + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0";
 }
 
-
-void StdoutWriteLines(string_vec_t& lines){
-    for(std::string& line : lines){
-        line += "\n";
-    }
-
-    stdout_mtx.lock();
-    for(std::string& line : lines){
-        std::cout << line;
-    }
-    stdout_mtx.unlock();
-
-}
 
 void WorkerProc() {
-    //Dont know if this is thread-safe, sure as shit hope it is
-    std::string line, out;
-    while(!std::cin.eof()){
-        line = StdinReadLine();
-        out.clear();
-
-        if(line.size() < 2)
-            continue;
-        std::vector<std::string> substrs = split(line, "|");
-        if(substrs[type] != "m.room.message")
-            if(!allow_encrypted)
-                continue;
-            if(substrs[type] != "m.room.encrypted")
-                continue;
-        
-        std::string room_id_str;
-        if(remap_room_name){
-            room_id_str = room_id_map.GetEntry(substrs[room_id]);
+    while(1){
+        auto task = tasks.Pop();
+        if(!task.has_value())
+            return;
+        auto res = TransformString(task.value());
+        if(res.has_value()){
+            results.Push(res.value());
         }
-        else {
-            room_id_str = substrs[room_id];
-        };
-        
-        out.push_back(substrs[event_id] + " " + room_id_str + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0");
-        }
-        
-        StdoutWriteLines(out);
-
     }
+    
     
 }
 
@@ -146,6 +123,13 @@ void RunProcsMultithreaded(int n_threads, proc_t proc){
 
 
 int main(){
+    std::vector<std::string> in, out;
+    while(!std::cin.eof()){
+        std::string line;
+    }
+        
+    
     RunProcsMultithreaded(threads_n, WorkerProc);
+    
 }
     
