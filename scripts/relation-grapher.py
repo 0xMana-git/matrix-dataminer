@@ -67,7 +67,7 @@ def main():
 
     args = parser.parse_args()
     root_node = "@mana:schizo.vip"
-    edges = explore("./outpub.txt", root_node, 10, 5)
+    edges = explore("./out.txt", root_node, 10, 5)
     G = nx.Graph()
 
     processed = set()
@@ -102,7 +102,7 @@ def main():
         
         weight = a["weight"]
         nodes_weights[u] = nodes_weights[v] = weight
-        a['color'] = utils.color_from_weight(minw, maxw, weight, [1, 0, 0, 1], [0, 1, 0, 1])
+        a['color'] = utils.color_from_weight(minw, maxw, weight, [1, 0, 0, 0.3], [0, 1, 0, 1])
         a["weight"] = transform_w(minw, maxw, weight)
     
     nodes_min = min(nodes_weights.values())
