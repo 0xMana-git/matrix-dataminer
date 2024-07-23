@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <thread>
-#include "thread_safe_queue.h"
+#include "../shared/thread_safe_queue.h"
 
 #define threads_n 32
 

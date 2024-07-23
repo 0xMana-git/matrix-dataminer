@@ -63,11 +63,12 @@ std::vector<std::string> split(std::string s, std::string delimiter) {
 void emptyproc(){};
 using proc_t = decltype(emptyproc);
 using lookup_pair_t = std::pair<std::string, int>;
-std::mutex stdin_mtx, stdout_mtx;
+std::mutex vec_mtx;
+std::vector<std::string> lines_vector;
 
 ValMapper<std::string> room_id_map;
 using string_vec_t = std::vector<std::string>;
-string_vec_t StdinReadLines(int n_lines = lines_per_chunk) {
+std::string StdinReadLine() {
     string_vec_t lines(n_lines);
 
     stdin_mtx.lock();
@@ -94,14 +95,14 @@ void StdoutWriteLines(string_vec_t& lines){
 
 void WorkerProc() {
     //Dont know if this is thread-safe, sure as shit hope it is
-    string_vec_t in, out;
+    std::string line, out;
     while(!std::cin.eof()){
-        in = StdinReadLines();
+        line = StdinReadLine();
         out.clear();
-        for(std::string& line : in){
-            if(line.size() < 2)
-                continue;
-            std::vector<std::string> substrs = split(line, "|");
+
+        if(line.size() < 2)
+            continue;
+        std::vector<std::string> substrs = split(line, "|");
         if(substrs[type] != "m.room.message")
             if(!allow_encrypted)
                 continue;
