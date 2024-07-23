@@ -6,7 +6,7 @@ wanna become a glowie but don't know where to start? with the power of this thin
 # how use 
 1. run build_all.sh
 2. export some events from your events.db 
-3. pipe the output of the query into dataparser then into parser, and pipe it to a text file or some shit i dont fuckin know(Example: `cat midov_events.txt | ./dataparser.o | ./grapher.o | cat out.txt`)
+3. pipe the output of the query into whatever binary u want to use and pipe it to a text file or some shit i dont fuckin know(Example: `cat events.txt | bin/relation-grapher.o > out.txt`)
 4. use browser to browse(:exploding_head:) 
 
 
