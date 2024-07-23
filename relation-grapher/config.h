@@ -25,9 +25,6 @@ namespace Config {
             double delta_time_d = ((double)delta_time) * 0.001;
         
             weight += (1 / delta_time_d) * reply_multiplier;
-            if(weight > std::numeric_limits<double>::max()){
-                std::cout << "WHAT THE FUCK" << delta_time_d;
-            }
         }
         //messages_inbetween += 1;
         if(messages_inbetween < inbetween_max_msgs){
