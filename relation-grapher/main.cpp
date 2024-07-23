@@ -54,18 +54,15 @@ int main(){
     
     //messages.reserve(n_lines);
     for(int i = 0; !std::cin.eof(); i++) {
+        std::string line;
+        std::cin >> line;
+        auto res = MessageEntry::FromDBEntry(line);
+        if(!res.has_value())
+            continue;
         MessageEntry entry;
+        //weird stuff happens here but it SHOULD work
+        *(MessageEntryBase*)(&entry) = res.value();
         
-        std::cin >> entry.msg_id >> entry.room_id >> entry.timestamp >> entry.sender >> entry.is_reply;
-
-        //if somehow already eof
-        if(entry.msg_id == "")
-            break;
-
-        if( entry.is_reply ){
-            std::cin >> entry.replying_to;
-        }
-            
         //std::cout << entry.ToString() << "\n";
         MessageEntry::AddMessage(entry);
 

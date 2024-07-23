@@ -1,11 +1,13 @@
 #pragma once
-#include "../shared/typedefs.h"
-#include "../shared/entry.h"
+
 #include <string>
 #include <vector>
-#include "config.h"
 #include <unordered_map>
 
+#include "../shared/typedefs.h"
+#include "../shared/entry.h"
+
+#include "config.h"
 
 
 struct MessageEntry : MessageEntryBase{
