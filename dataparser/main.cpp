@@ -65,7 +65,8 @@ void emptyproc(){};
 using proc_t = decltype(emptyproc);
 using lookup_pair_t = std::pair<std::string, int>;
 std::mutex vec_mtx;
-ThreadSafeQueue<const std::string&> tasks, results;
+//i dont wanna fuck with const ref
+ThreadSafeQueue<std::string> tasks, results;
 
 ValMapper<std::string> room_id_map;
 using string_vec_t = std::vector<std::string>;
@@ -123,13 +124,16 @@ void RunProcsMultithreaded(int n_threads, proc_t proc){
 
 
 int main(){
-    std::vector<std::string> in, out;
+    
     while(!std::cin.eof()){
-        std::string line;
+        std::string s;
+        std::cin >> s;
+        tasks.Push(s);
     }
         
     
     RunProcsMultithreaded(threads_n, WorkerProc);
+
     
 }
     

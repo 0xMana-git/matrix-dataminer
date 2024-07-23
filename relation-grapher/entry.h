@@ -1,5 +1,6 @@
 #pragma once
-#include "typedefs.h"
+#include "../shared/typedefs.h"
+#include "../shared/entry.h"
 #include <string>
 #include <vector>
 #include "config.h"
@@ -7,23 +8,13 @@
 
 
 
-struct MessageEntry {
-    msg_id_t msg_id = "";
-    ts_t timestamp = 0;
-    room_id_t room_id = "";
-    user_id_t sender = "";
-    bool is_reply = 0;
-    user_id_t replying_to = "";
+struct MessageEntry : MessageEntryBase{
+
     inline static std::unordered_map<room_id_t, std::vector<MessageEntry>> messages;
 
     //Arbitraily set(kinda)
     size_t message_idx = 0;
-    bool operator<(const MessageEntry& other){
-        return timestamp < other.timestamp;
-    }
-    std::string ToString(){
-        return "msg_id: " + msg_id + " room id: " + room_id + " timestamp: " + std::to_string(timestamp) + " sender: " + sender + " is_reply: " + std::to_string(is_reply) + (is_reply ? " replying to: " + replying_to : "");
-    }
+    
     static void AddMessage(const MessageEntry& entry);
     static void SortMessages(room_id_t id);
     static void SortAllMessages();
