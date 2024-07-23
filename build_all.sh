@@ -1,3 +1,3 @@
-g++ relation-grapher/*.cpp -o relation-grapher.o;
-g++ browser/*.cpp -o browser.o;
-g++ dataparser/*.cpp -o dataparser.o;
+g++ relation-grapher/*.cpp -o bin/relation-grapher.o;
+g++ browser/*.cpp -o bin/browser.o;
+g++ dataparser/*.cpp -o bin/dataparser.o;

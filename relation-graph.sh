@@ -1,1 +1,1 @@
-./dataparser.o | ./relation-grapher.o
+./bin/dataparser.o | ./bin/relation-grapher.o
