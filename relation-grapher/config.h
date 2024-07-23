@@ -1,6 +1,7 @@
 #pragma once
 #include "../shared/typedefs.h"
-
+#include <iostream>
+#include <limits>
 
 
 namespace Config {
@@ -18,12 +19,15 @@ namespace Config {
         relation_weight_t weight = 0;
         if (is_replying)
             weight += reply_flat_addition;
-        delta_time = std::min(delta_min, delta_time);
+        delta_time = std::max(delta_min, delta_time);
         if(delta_time < delta_max){
             //In seconds this time :)
-            double delta_time_d = (double)delta_time / 1000;
+            double delta_time_d = ((double)delta_time) * 0.001;
         
             weight += (1 / delta_time_d) * reply_multiplier;
+            if(weight > std::numeric_limits<double>::max()){
+                std::cout << "WHAT THE FUCK" << delta_time_d;
+            }
         }
         //messages_inbetween += 1;
         if(messages_inbetween < inbetween_max_msgs){
