@@ -56,6 +56,7 @@ std::vector<std::string> split(std::string s, std::string delimiter) {
 #define lines_per_chunk 128
 
 #define threads_n 32
+#define remap_room_name true
 
 
 void emptyproc(){};
@@ -102,7 +103,15 @@ void WorkerProc() {
             std::vector<std::string> substrs = split(line, "|");
         if(substrs[type] != "m.room.message")
             continue;
-        out.push_back(substrs[event_id] + " " + room_id_map.GetEntry(substrs[room_id]) + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0");
+        std::string room_id_str;
+        if(remap_room_name){
+            room_id_str = room_id_map.GetEntry(substrs[room_id]);
+        }
+        else {
+            room_id_str = substrs[room_id];
+        };
+            
+        out.push_back(substrs[event_id] + " " + room_id_str + " " + substrs[origin_server_ts] + " " + substrs[sender] + " 0");
         }
         
         StdoutWriteLines(out);
