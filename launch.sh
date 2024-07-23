@@ -1,1 +1,0 @@
-./dataparser.o | ./grapher.o 
