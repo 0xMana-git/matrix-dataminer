@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import subprocess
 import numpy as np
+import utils
 
 parser = argparse.ArgumentParser(
                     prog='ProgramName',
@@ -55,27 +56,18 @@ def explore(data_fname : str, node : str, width : int, max_depth : int, edges : 
     for k in data.keys():
         explore(data_fname, k, width, max_depth, edges, depth + 1)
     return edges
-        
-def lerp(minv, maxv, perc):
-    delta = maxv - minv
-    return minv + delta * perc
-def color_from_weight(minw, maxw, w, cs, ce):
-    cs = np.array(cs)
-    ce = np.array(ce)
-    delta = ce - cs
-    percent = (w - minw) / (maxw - minw) 
-    return cs + delta * percent
 
-def interpolate(smin, smax, v, dmin, dmax):
-    sdelta = smax - smin
-    perc = (v - smin) / sdelta
-    return lerp(dmin, dmax, perc)
+def transform_w(minw : float, maxw : float, w : float) -> float:
+    #w *= 0.03
+    w = utils.normalize(minw, maxw, w)
+    #w = utils.ease_outexpo(w)
+    return utils.lerp(0.001, 10, w)
 
 def main():
-    
 
     args = parser.parse_args()
-    edges = explore("./outpub.txt", "@mana:schizo.vip", 10, 10)
+    root_node = "@mana:schizo.vip"
+    edges = explore("./outpub.txt", root_node, 10, 5)
     G = nx.Graph()
 
     processed = set()
@@ -92,7 +84,7 @@ def main():
                 v2 = edges[k2][k1]
             #g.add_node(k1)
             #g.add_node(k2)
-            avg = (v1 + v2) * 0.5 * 0.003
+            avg = (v1 + v2) * 0.5 
             G.add_edge(k1, k2, color="r", weight=avg)
 
         processed.add(k1)
@@ -101,6 +93,7 @@ def main():
     maxw = max(weights)
     nodes_weights = {}
     nodes_w_list = []
+    node_colors = []
     for u,v,a in G.edges(data=True):
         if u in nodes_weights.keys():
             nodes_weights[u] = 0.0
@@ -109,22 +102,25 @@ def main():
         
         weight = a["weight"]
         nodes_weights[u] = nodes_weights[v] = weight
-        a['color'] = color_from_weight(minw, maxw, weight, [1, 0, 0, 1], [0, 1, 0, 1])
-    for n in G.nodes():
-        nodes_w_list.append(interpolate(min(nodes_weights.values()), max(nodes_weights.values()), 
-                                        nodes_weights[n],
-                                        25,
-                                        1000))
-    colors = nx.get_edge_attributes(G,'color').values()
+        a['color'] = utils.color_from_weight(minw, maxw, weight, [1, 0, 0, 1], [0, 1, 0, 1])
+        a["weight"] = transform_w(minw, maxw, weight)
     
+    nodes_min = min(nodes_weights.values())
+    nodes_max = max(nodes_weights.values())
 
+    for n in G.nodes():
+        nodes_w_list.append(utils.lerp(25, 500, utils.normalize(nodes_min, nodes_max, nodes_weights[n])))
+        node_colors.append(utils.color_from_weight(nodes_min, nodes_max, nodes_weights[n], [0, 0, 1, 1], [0, 1, 1, 1]))
+    colors = nx.get_edge_attributes(G,'color').values()
+    widths = nx.get_edge_attributes(G,'weight').values()
+    #layout_fn = 
     pos = nx.random_layout(G)
     fig=plt.figure()
     nx.draw(G, pos, 
             edge_color=colors, 
-            width=list(weights),
+            width=list(widths),
             with_labels=True,
-            node_color='blue',
+            node_color=node_colors,
             node_size=nodes_w_list,
             font_size=7,
             font_color="white")
