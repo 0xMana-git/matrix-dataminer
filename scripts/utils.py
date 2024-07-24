@@ -30,12 +30,17 @@ def is_all_points_valid(points, point : np.ndarray, check_func) -> bool:
 def random_layout_spaced(nodes, minx, miny):
     check_fn = partial(is_dist_valid_manhattan, minx, miny)
     nodes_poses = {}
+    max_gen_attempts = 20
     for node in nodes:
-        while(True):
+        ctr = 0
+        while(ctr < max_gen_attempts):
             pos = np.random.rand(2)
             if(is_all_points_valid(nodes_poses.values(), pos, check_fn)):
                 nodes_poses[node] = pos
                 break
+            ctr += 1
+        if (ctr >= max_gen_attempts):
+            nodes_poses[node] = np.random.rand(2)
     return nodes_poses
 
 def ease_outexpo(v : float) -> float:
