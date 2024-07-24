@@ -67,21 +67,29 @@ def main():
 
     args = parser.parse_args()
     root_node = "@mana:schizo.vip"
-    edges = explore("./outpub.txt", root_node, 10, 5)
+    edges = explore("./out.txt", root_node, 15, 5)
     G = nx.Graph()
 
     processed = set()
+    unregistered_set = set()
+    for k1 in edges.keys():
+        for k2 in edges[k1].keys():
+            if not k2 in edges.keys():
+                unregistered_set.add(k2)
+    for k in unregistered_set:
+        edges[k] = {}
+
     for k1 in edges.keys():
         for k2 in edges[k1].keys():
             if k2 in processed:
                 continue
             v1 = edges[k1][k2]
-            if not k2 in edges.keys():
-                v2 = 0.0
-            elif not k1 in edges[k2].keys():
-                v2 = 0.0
-            else:
-                v2 = edges[k2][k1]
+
+            if not k1 in edges[k2].keys():
+                edges[k2][k1] = 0.0
+
+            v2 = edges[k2][k1]
+            
             #g.add_node(k1)
             #g.add_node(k2)
             avg = (v1 + v2) * 0.5 
@@ -101,8 +109,8 @@ def main():
             nodes_weights[v] = 0.0
         
         weight = a["weight"]
-        nodes_weights[u] += weight
-        nodes_weights[v] += weight
+        nodes_weights[u] += edges[u][v]
+        nodes_weights[v] += edges[v][u]
         a['color'] = utils.color_from_weight(minw, maxw, weight, [1, 0, 0, 0.3], [0, 1, 0, 1])
         a["weight"] = transform_w(minw, maxw, weight)
     
