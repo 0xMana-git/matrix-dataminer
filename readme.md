@@ -13,3 +13,7 @@ wanna become a glowie but don't know where to start? with the power of this thin
 # why in cpp 
 its like fast and shit 
 also i wanted to make a cpp project in linux cuz i never did it b4 
+
+
+# sample graph 
+![image](https://github.com/user-attachments/assets/496b1583-fac3-4046-95a7-6090ede7386c)
