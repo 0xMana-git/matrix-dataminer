@@ -67,7 +67,7 @@ def main():
 
     args = parser.parse_args()
     root_node = "@mana:schizo.vip"
-    edges = explore("./out.txt", root_node, 10, 5)
+    edges = explore("./outpub.txt", root_node, 10, 5)
     G = nx.Graph()
 
     processed = set()
@@ -114,7 +114,8 @@ def main():
     colors = nx.get_edge_attributes(G,'color').values()
     widths = nx.get_edge_attributes(G,'weight').values()
     #layout_fn = 
-    pos = nx.random_layout(G)
+    #pos = nx.random_layout(G)
+    pos = utils.random_layout_spaced(G.nodes(), 0.1, 0.02)
     fig=plt.figure()
     nx.draw(G, pos, 
             edge_color=colors, 
