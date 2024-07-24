@@ -16,4 +16,4 @@ also i wanted to make a cpp project in linux cuz i never did it b4
 
 
 # sample graph 
-![image](https://github.com/user-attachments/assets/496b1583-fac3-4046-95a7-6090ede7386c)
+![image](https://github.com/user-attachments/assets/71bf4164-5b6a-4bc1-9504-1723d75585b1)
