@@ -95,13 +95,14 @@ def main():
     nodes_w_list = []
     node_colors = []
     for u,v,a in G.edges(data=True):
-        if u in nodes_weights.keys():
+        if not u in nodes_weights.keys():
             nodes_weights[u] = 0.0
-        if v in nodes_weights.keys():
+        if not v in nodes_weights.keys():
             nodes_weights[v] = 0.0
         
         weight = a["weight"]
-        nodes_weights[u] = nodes_weights[v] = weight
+        nodes_weights[u] += weight
+        nodes_weights[v] += weight
         a['color'] = utils.color_from_weight(minw, maxw, weight, [1, 0, 0, 0.3], [0, 1, 0, 1])
         a["weight"] = transform_w(minw, maxw, weight)
     
