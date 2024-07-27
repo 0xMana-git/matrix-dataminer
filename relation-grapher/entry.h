@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <mutex>
+#include <span>
 
 #include "../shared/typedefs.h"
 #include "../shared/entry.h"
@@ -23,10 +25,24 @@ struct MessageEntry : MessageEntryBase{
 };
 
 
-
+class MessageBlock {
+    std::vector<MessageEntry>* messages;
+    size_t start, end;
+    public:
+    MessageBlock(size_t start, size_t end, std::vector<MessageEntry>& messages){
+        //too lazy to bound check, just dont go out of bounds please
+        this->messages = &messages;
+        this->start = start;
+        this->end = end;
+    }
+    auto GetSpan() const{
+        return std::span(messages->begin() + start, messages->begin() + end);
+    }
+};
 
 
 struct UserEntry {
+    
     user_id_t user_id;
     //MessageEntry can be immutable anyway so i dont give a fuck
     //std::vector<const MessageEntry*> messages;
@@ -44,7 +60,7 @@ struct UserEntry {
         user_id = uid;
         relations_map = {};
     }
-    
+    //void ProcessMessageBlock(const MessageBlock& messages);
     void BuildRelations(const std::vector<MessageEntry>& messages);
     std::string GetRelations() const;
     static void CreateUserIfNotExist(user_id_t uid);
