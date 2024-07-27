@@ -26,13 +26,16 @@ void MessageEntry::SortAllMessages(){
 
 
 void UserEntry::AddWeight(const user_id_t& user, relation_weight_t weight){
-        if(relations_map.find(user) == relations_map.end()){
-            relations_map[user] = weight;
-            return;
-        }
-        relations_map[user] += weight;
+    if(relations_map.find(user) == relations_map.end()){
+        relations_map[user] = weight;
+        return;
     }
+    relations_map[user] += weight;
+}
 
+void ProcessMessageBlock(const MessageBlock& messages){
+    return;
+}
 void UserEntry::BuildRelations(const std::vector<MessageEntry>& messages){ 
     bool current_user_talking = false;
     std::unordered_map<user_id_t, const MessageEntry*> latest_msgs;

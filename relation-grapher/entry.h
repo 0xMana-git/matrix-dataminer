@@ -60,7 +60,7 @@ struct UserEntry {
         user_id = uid;
         relations_map = {};
     }
-    //void ProcessMessageBlock(const MessageBlock& messages);
+    void ProcessMessageBlock(const MessageBlock& messages);
     void BuildRelations(const std::vector<MessageEntry>& messages);
     std::string GetRelations() const;
     static void CreateUserIfNotExist(user_id_t uid);
