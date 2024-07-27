@@ -15,7 +15,7 @@ namespace Config {
     constexpr relation_weight_t inbetween_weight_multiplier = 1;
     constexpr int inbetween_max_msgs = 10;
     
-    inline relation_weight_t GetWeight(ts_t delta_time, int messages_inbetween, bool is_replying, double activity = 0.00) {
+    inline relation_weight_t GetWeight(ts_t delta_time, int messages_inbetween, bool is_replying, size_t attending_users, size_t continuous_messages_sent, double activity) {
         relation_weight_t weight = 0;
         if (is_replying)
             weight += reply_flat_addition;
@@ -41,4 +41,5 @@ namespace Config {
     //Actually used elsewhere
     constexpr relation_weight_t relation_signficance_threshold = 1;
 
+    constexpr ts_t convo_deltatime_threshold = 1000 * 1800;
 }

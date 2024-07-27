@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <mutex>
 #include <span>
 
@@ -26,18 +27,24 @@ struct MessageEntry : MessageEntryBase{
 
 
 class MessageBlock {
-    std::vector<MessageEntry>* messages;
-    size_t start, end;
+    using message_vec_iter = std::vector<MessageEntry>::iterator;
+    std::vector<user_id_t> participants;
+    message_vec_iter start, end;
+    double activity = -1.0;
+
     public:
-    MessageBlock(size_t start, size_t end, std::vector<MessageEntry>& messages){
+    MessageBlock(message_vec_iter bstart, message_vec_iter bstop){
         //too lazy to bound check, just dont go out of bounds please
-        this->messages = &messages;
-        this->start = start;
-        this->end = end;
+        this->start = bstart;
+        this->end = bstop;
     }
     auto GetSpan() const{
-        return std::span(messages->begin() + start, messages->begin() + end);
+        return std::span(start, end);
     }
+    double GetActivity();
+    const std::vector<user_id_t> GetParticipants();
+    size_t GetParticipantsN();
+
 };
 
 
@@ -60,8 +67,9 @@ struct UserEntry {
         user_id = uid;
         relations_map = {};
     }
-    void ProcessMessageBlock(const MessageBlock& messages);
-    void BuildRelations(const std::vector<MessageEntry>& messages);
+    void ProcessMessageBlock(MessageBlock& messages);
+    //I cant make this vector const but just please dont modify it dude
+    void BuildRelations(std::vector<MessageEntry>& messages);
     std::string GetRelations() const;
     static void CreateUserIfNotExist(user_id_t uid);
     

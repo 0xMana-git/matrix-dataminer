@@ -8,9 +8,9 @@
 
 #define threads_n 32
 
-using args_pair = std::pair<UserEntry*, const std::vector<MessageEntry>&>;
+using args_pair = std::pair<UserEntry*, std::vector<MessageEntry>&>;
 using TaskQueue = ThreadSafeQueue<args_pair>;
-void BuildRelationsWrapper(UserEntry* user, const std::vector<MessageEntry>& msgs){
+void BuildRelationsWrapper(UserEntry* user, std::vector<MessageEntry>& msgs){
     user->BuildRelations(msgs);
 }
 
@@ -68,8 +68,8 @@ int main(){
 
     }
     MessageEntry::SortAllMessages();
-    for(const auto& it : MessageEntry::messages) {
-        const std::vector<MessageEntry>& msgs = it.second;
+    for(auto& it : MessageEntry::messages) {
+        std::vector<MessageEntry>& msgs = it.second;
 
         for(const MessageEntry& entry : msgs){
             UserEntry::CreateUserIfNotExist(entry.sender);
