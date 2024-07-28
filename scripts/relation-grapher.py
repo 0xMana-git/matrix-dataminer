@@ -67,7 +67,7 @@ def main():
 
     args = parser.parse_args()
     root_node = "@mana:schizo.vip"
-    edges = explore("./out.txt", root_node, 15, 5)
+    edges = explore("./outmid.txt", root_node, 15, 5)
     G = nx.Graph()
 
     processed = set()
@@ -111,7 +111,7 @@ def main():
         weight = a["weight"]
         nodes_weights[u] += edges[u][v]
         nodes_weights[v] += edges[v][u]
-        a['color'] = utils.color_from_weight(minw, maxw, weight, [1, 0, 0, 0.3], [0, 1, 0, 1])
+        a['color'] = utils.color_from_weight(utils.normalize(minw, maxw, weight), [1, 0, 0, 0.3], [0, 1, 0, 1])
         a["weight"] = transform_w(minw, maxw, weight)
     
     nodes_min = min(nodes_weights.values())
@@ -119,7 +119,8 @@ def main():
 
     for n in G.nodes():
         nodes_w_list.append(utils.lerp(25, 500, utils.normalize(nodes_min, nodes_max, nodes_weights[n])))
-        node_colors.append(utils.color_from_weight(nodes_min, nodes_max, nodes_weights[n], [0, 0, 1, 1], [0, 1, 1, 1]))
+        perc = utils.normalize(nodes_min, nodes_max, nodes_weights[n])
+        node_colors.append(utils.color_from_weight(utils.ease_outexpo(perc), [0, 0, 1, 1], [0, 1, 1, 1]))
     colors = nx.get_edge_attributes(G,'color').values()
     widths = nx.get_edge_attributes(G,'weight').values()
     #layout_fn = 

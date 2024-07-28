@@ -11,7 +11,9 @@ namespace EventsDBEnum {
             type = 3,
             room_id = 4,
             origin_server_ts = 10,
-            sender = 12 
+            sender = 12,
+            entries_length = 17, 
+            received_ts = 11
         };
 };
 
@@ -38,7 +40,10 @@ public:
     }
     static std::optional<MessageEntryBase> FromDBEntry(const std::string& entry) {
         static ValMapper<std::string> mapper;
+        
         std::vector<std::string> substrs = string_split(entry, "|");
+        if(substrs.size() != EventsDBEnum::entries_length)
+            return {};
         if(substrs[EventsDBEnum::type] != "m.room.message"){
             if(!allow_encrypted)
                 return {};
@@ -52,7 +57,7 @@ public:
         
 
         return MessageEntryBase(substrs[EventsDBEnum::event_id], 
-                            stoll(substrs[EventsDBEnum::origin_server_ts]), 
+                            stoull(substrs[EventsDBEnum::received_ts]), 
                             room_id_str, 
                             substrs[EventsDBEnum::sender]);
 

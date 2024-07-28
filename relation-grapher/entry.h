@@ -27,23 +27,44 @@ struct MessageEntry : MessageEntryBase{
 
 
 class MessageBlock {
-    using message_vec_iter = std::vector<MessageEntry>::iterator;
+    
+    size_t start = -1, end = -1;
+    std::vector<MessageEntry> const* msg_vec = 0;
     std::vector<user_id_t> participants;
-    message_vec_iter start, end;
+    std::unordered_map<user_id_t, double> participants_ratio;
     double activity = -1.0;
 
     public:
-    MessageBlock(message_vec_iter bstart, message_vec_iter bstop){
+    MessageBlock(size_t bstart, size_t bstop, const std::vector<MessageEntry>& msg_vec){
         //too lazy to bound check, just dont go out of bounds please
         this->start = bstart;
         this->end = bstop;
+        this->msg_vec = &msg_vec;
     }
-    auto GetSpan() const{
-        return std::span(start, end);
+    const auto GetSpan() const{
+        return std::span(msg_vec->begin() + start, msg_vec->begin() + end);
     }
+    //too lazy to implement rn, maybe later
+    std::vector<MessageBlock> GetSubBlocks(ts_t max_delta_time) const{
+        return {};
+    }
+    const std::unordered_map<user_id_t, double>& GetParticipantsRatio();
+    std::unordered_map<user_id_t, double> Process(user_id_t src_user);
     double GetActivity();
-    const std::vector<user_id_t> GetParticipants();
+    const std::vector<user_id_t>& GetParticipants();
     size_t GetParticipantsN();
+    bool IsValid(){
+        if(start == end)
+            return false;
+        if(msg_vec->at(end).timestamp - msg_vec->at(start).timestamp < Config::min_block_deltatime)
+            return false;
+        return true;
+    }
+    void InitStats(){
+        GetParticipantsRatio();
+        GetActivity();
+        GetParticipants();
+    }
 
 };
 
@@ -67,9 +88,8 @@ struct UserEntry {
         user_id = uid;
         relations_map = {};
     }
-    void ProcessMessageBlock(MessageBlock& messages);
     //I cant make this vector const but just please dont modify it dude
-    void BuildRelations(std::vector<MessageEntry>& messages);
+    void BuildRelations(const std::vector<MessageEntry>& messages);
     std::string GetRelations() const;
     static void CreateUserIfNotExist(user_id_t uid);
     

@@ -2,7 +2,7 @@
 #include "../shared/typedefs.h"
 #include <iostream>
 #include <limits>
-
+#include <cassert>
 
 namespace Config {
 
@@ -15,31 +15,19 @@ namespace Config {
     constexpr relation_weight_t inbetween_weight_multiplier = 1;
     constexpr int inbetween_max_msgs = 10;
     
-    inline relation_weight_t GetWeight(ts_t delta_time, int messages_inbetween, bool is_replying, size_t attending_users, size_t continuous_messages_sent, double activity) {
-        relation_weight_t weight = 0;
-        if (is_replying)
-            weight += reply_flat_addition;
-        delta_time = std::max(delta_min, delta_time);
-        if(delta_time < delta_max){
-            //In seconds this time :)
-            double delta_time_d = ((double)delta_time) * 0.001;
-        
-            weight += (1 / delta_time_d) * reply_multiplier;
-        }
-        //messages_inbetween += 1;
-        if(messages_inbetween < inbetween_max_msgs){
-            weight += (1 / (double)messages_inbetween) * inbetween_weight_multiplier;
-        }
-        
+    inline relation_weight_t GetWeight(double user_ratio, double other_ratio, double overall_activity) {
+        relation_weight_t weight = 1;
 
+        weight *= overall_activity;
+        weight *= other_ratio;
+        weight *= user_ratio;
+        weight *= 10000;
         return weight;
-        
-    
-        
     }
 
     //Actually used elsewhere
-    constexpr relation_weight_t relation_signficance_threshold = 1;
+    constexpr relation_weight_t relation_signficance_threshold = 0.1;
 
     constexpr ts_t convo_deltatime_threshold = 1000 * 1800;
+    constexpr ts_t min_block_deltatime = 1000 * 60;
 }

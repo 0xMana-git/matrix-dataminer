@@ -8,11 +8,11 @@ def lerp(minv, maxv, perc):
 def normalize(minv, maxv, v):
     return (v - minv) / (maxv - minv)
 
-def color_from_weight(minw, maxw, w, cs, ce):
+def color_from_weight(perc, cs, ce):
     cs = np.array(cs)
     ce = np.array(ce)
     delta = ce - cs
-    return cs + delta * normalize(minw, maxw, w)
+    return cs + delta * perc
 
 def is_dist_valid_manhattan(minx, miny, p1 :np.ndarray , p2 :np.ndarray) -> bool:
     delta = np.abs(p2 - p1)
