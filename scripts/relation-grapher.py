@@ -4,12 +4,14 @@ import networkx as nx
 import subprocess
 import numpy as np
 import utils
+import sys
 
 parser = argparse.ArgumentParser(
                     prog='ProgramName',
                     description='What the program does',
                     epilog='Text at the bottom of help')
 
+parser.add_argument('filename')  
 parser.add_argument('-r', '--root')      
 parser.add_argument('-d', '--depth')
 parser.add_argument('-w', '--width')
@@ -67,7 +69,7 @@ def main():
 
     args = parser.parse_args()
     root_node = "@mana:schizo.vip"
-    edges = explore("./outmid.txt", root_node, 15, 5)
+    edges = explore(args.filename, root_node, 15, 5)
     G = nx.Graph()
 
     processed = set()
@@ -120,7 +122,7 @@ def main():
     for n in G.nodes():
         nodes_w_list.append(utils.lerp(25, 500, utils.normalize(nodes_min, nodes_max, nodes_weights[n])))
         perc = utils.normalize(nodes_min, nodes_max, nodes_weights[n])
-        node_colors.append(utils.color_from_weight(utils.ease_outexpo(perc), [0, 0, 1, 1], [0, 1, 1, 1]))
+        node_colors.append(utils.color_from_weight(perc, [0, 0, 1, 1], [0, 1, 1, 1]))
     colors = nx.get_edge_attributes(G,'color').values()
     widths = nx.get_edge_attributes(G,'weight').values()
     #layout_fn = 

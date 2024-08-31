@@ -26,7 +26,7 @@ namespace Config {
     }
 
     //Actually used elsewhere
-    constexpr relation_weight_t relation_signficance_threshold = 0.1;
+    constexpr relation_weight_t relation_signficance_threshold = 0.01;
 
     constexpr ts_t convo_deltatime_threshold = 1000 * 1800;
     constexpr ts_t min_block_deltatime = 1000 * 60;
