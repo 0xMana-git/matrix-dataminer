@@ -51,14 +51,15 @@ int main(int argc, char** argv){
     //messages.reserve(n_lines);
     for(int i = 0; !std::cin.eof(); i++) {
         std::string line;
-        std::cin >> line;
-        auto res = MessageEntry::FromDBEntry(line);
+        //std::cin >> line;
+        getline(std::cin, line);
+        auto res = MessageEntry::FromPostgresEntry(line);
         if(!res.has_value())
             continue;
         MessageEntry entry;
         //weird stuff happens here but it SHOULD work
         *(MessageEntryBase*)(&entry) = res.value();
-        
+        std::cout << "has val\n";
         //std::cout << entry.ToString() << "\n";
         MessageEntry::AddMessage(entry);
         
@@ -66,7 +67,7 @@ int main(int argc, char** argv){
     MessageEntry::SortAllMessages();
     for(auto& it : MessageEntry::messages) {
         std::vector<MessageEntry>& msgs = it.second;
-        
+        std::cout << msgs.size();
         for(const MessageEntry& entry : msgs){
             UserEntry::CreateUserIfNotExist(entry.sender);
             if(entry.is_reply) {

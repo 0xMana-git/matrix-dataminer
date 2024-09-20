@@ -1,11 +1,12 @@
 #pragma once
 #include <optional>
 #include <string>
+#include <iostream>
 #include "typedefs.h"
 #include "utils.h"
 #include "valmapper.h"
 
-namespace EventsDBEnum {
+namespace EventsSQLiteEnum {
         enum EventsDBIndex {
             event_id = 2,
             type = 3,
@@ -16,7 +17,17 @@ namespace EventsDBEnum {
             received_ts = 11
         };
 };
-
+namespace EventsPostgresEnum {
+        enum EventsDBIndex {
+            event_id = 1,
+            type = 2,
+            room_id = 3,
+            origin_server_ts = 9,
+            sender = 11,
+            entries_length = 17, 
+            received_ts = 10
+        };
+};
 struct MessageEntryBase {
 protected:
     constexpr static bool parse_message_contents = false;
@@ -38,28 +49,56 @@ public:
         return "msg_id: " + msg_id + " room id: " + room_id + " timestamp: " + std::to_string(timestamp) + " sender: " + sender + " is_reply: " + std::to_string(is_reply) + (is_reply ? " replying to: " + replying_to : "");
         
     }
-    static std::optional<MessageEntryBase> FromDBEntry(const std::string& entry) {
+    static std::optional<MessageEntryBase> FromSQLiteEntry(const std::string& entry) {
         static ValMapper<std::string> mapper;
         
         std::vector<std::string> substrs = string_split(entry, "|");
-        if(substrs.size() != EventsDBEnum::entries_length)
+        if(substrs.size() != EventsSQLiteEnum::entries_length)
             return {};
-        if(substrs[EventsDBEnum::type] != "m.room.message"){
+        if(substrs[EventsSQLiteEnum::type] != "m.room.message"){
             if(!allow_encrypted)
                 return {};
-            if(substrs[EventsDBEnum::type] != "m.room.encrypted")
+            if(substrs[EventsSQLiteEnum::type] != "m.room.encrypted")
                 return {};
         }
         
-        std::string room_id_str = substrs[EventsDBEnum::room_id];
+        std::string room_id_str = substrs[EventsSQLiteEnum::room_id];
         if(remap_room_ids)
             room_id_str = mapper.GetEntry(room_id_str);
         
 
-        return MessageEntryBase(substrs[EventsDBEnum::event_id], 
-                            stoull(substrs[EventsDBEnum::received_ts]), 
+        return MessageEntryBase(substrs[EventsSQLiteEnum::event_id], 
+                            stoull(substrs[EventsSQLiteEnum::received_ts]), 
                             room_id_str, 
-                            substrs[EventsDBEnum::sender]);
+                            substrs[EventsSQLiteEnum::sender]);
+
+    }
+    static std::optional<MessageEntryBase> FromPostgresEntry(const std::string& entry) {
+        static ValMapper<std::string> mapper;
+        std::vector<std::string> substrs = string_split(entry, "|");
+        for(std::string& s : substrs){
+            trim(s);
+        }
+        // if(substrs.size() != EventsSQLiteEnum::entries_length)
+        //     return {};
+        std::cout << substrs.size() << "\n";
+        std::cout << substrs[EventsPostgresEnum::type] << "\n";
+        if(substrs[EventsPostgresEnum::type] != "m.room.message"){
+            if(!allow_encrypted)
+                return {};
+            if(substrs[EventsPostgresEnum::type] != "m.room.encrypted")
+                return {};
+        }
+        
+        std::string room_id_str = substrs[EventsPostgresEnum::room_id];
+        if(remap_room_ids)
+            room_id_str = mapper.GetEntry(room_id_str);
+        
+
+        return MessageEntryBase(substrs[EventsPostgresEnum::event_id], 
+                            stoull(substrs[EventsPostgresEnum::received_ts]), 
+                            room_id_str, 
+                            substrs[EventsPostgresEnum::sender]);
 
     }
     MessageEntryBase(){};
@@ -72,8 +111,9 @@ public:
         this->replying_to = replying_to;
     }
 };
-
-
+//postgres
+//  topological_ordering |                   event_id                   |               type               |            room_id            | content | unrecognized_keys | processed | outlier | depth  | origin_server_ts |  received_ts  |                             sender                             | contains_url | instance_name | stream_ordering |                           state_key                            | rejection_reason 
+//----------------------+----------------------------------------------+----------------------------------+-------------------------------+---------+-------------------+-----------+---------+--------+------------------+---------------+----------------------------------------------------------------+--------------+---------------+-----------------+----------------------------------------------------------------+------------------
 // # sqlite> PRAGMA table_info(events);
 // # 0|stream_ordering|INTEGER|0||1
 // # 1|topological_ordering|BIGINT|1||0
