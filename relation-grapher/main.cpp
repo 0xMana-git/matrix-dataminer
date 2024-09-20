@@ -59,7 +59,6 @@ int main(int argc, char** argv){
         MessageEntry entry;
         //weird stuff happens here but it SHOULD work
         *(MessageEntryBase*)(&entry) = res.value();
-        std::cout << "has val\n";
         //std::cout << entry.ToString() << "\n";
         MessageEntry::AddMessage(entry);
         
