@@ -81,8 +81,6 @@ public:
         }
         // if(substrs.size() != EventsSQLiteEnum::entries_length)
         //     return {};
-        std::cout << substrs.size() << "\n";
-        std::cout << substrs[EventsPostgresEnum::type] << "\n";
         if(substrs[EventsPostgresEnum::type] != "m.room.message"){
             if(!allow_encrypted)
                 return {};
