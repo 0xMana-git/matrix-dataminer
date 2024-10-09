@@ -18,7 +18,7 @@ parser.add_argument('-w', '--width')
 
 
 
-browser_path = "./bin/browser.o"
+browser_path = "./bin/browser"
 def get_data(data_fname : str, node : str, width : int) -> dict:
     width += 1
     cat_fd = subprocess.run(["cat", data_fname],

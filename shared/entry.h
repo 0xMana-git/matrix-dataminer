@@ -74,29 +74,35 @@ public:
 
     }
     static std::optional<MessageEntryBase> FromPostgresEntry(const std::string& entry) {
-        static ValMapper<std::string> mapper;
-        std::vector<std::string> substrs = string_split(entry, "|");
-        for(std::string& s : substrs){
-            trim(s);
-        }
-        // if(substrs.size() != EventsSQLiteEnum::entries_length)
-        //     return {};
-        if(substrs[EventsPostgresEnum::type] != "m.room.message"){
-            if(!allow_encrypted)
-                return {};
-            if(substrs[EventsPostgresEnum::type] != "m.room.encrypted")
-                return {};
-        }
-        
-        std::string room_id_str = substrs[EventsPostgresEnum::room_id];
-        if(remap_room_ids)
-            room_id_str = mapper.GetEntry(room_id_str);
-        
+        try {
+            static ValMapper<std::string> mapper;
+            std::vector<std::string> substrs = string_split(entry, "|");
+            for(std::string& s : substrs){
+                trim(s);
+            }
+            // if(substrs.size() != EventsSQLiteEnum::entries_length)
+            //     return {};
+            if(substrs[EventsPostgresEnum::type] != "m.room.message"){
+                if(!allow_encrypted)
+                    return {};
+                if(substrs[EventsPostgresEnum::type] != "m.room.encrypted")
+                    return {};
+            }
+            
+            std::string room_id_str = substrs[EventsPostgresEnum::room_id];
+            if(remap_room_ids)
+                room_id_str = mapper.GetEntry(room_id_str);
+            
 
-        return MessageEntryBase(substrs[EventsPostgresEnum::event_id], 
-                            stoull(substrs[EventsPostgresEnum::received_ts]), 
-                            room_id_str, 
-                            substrs[EventsPostgresEnum::sender]);
+            return MessageEntryBase(substrs[EventsPostgresEnum::event_id], 
+                                stoull(substrs[EventsPostgresEnum::received_ts]), 
+                                room_id_str, 
+                                substrs[EventsPostgresEnum::sender]);
+        }
+        catch (std::exception e){
+            return {};
+        }
+        
 
     }
     MessageEntryBase(){};
